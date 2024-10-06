@@ -4,6 +4,7 @@
 Вариант: 2
 */
 
+using System;
 using Project1mHSE.Helpers;
 
 public static class Program

@@ -1,4 +1,7 @@
-﻿namespace Project1mHSE.Helpers
+﻿using System;
+using System.IO;
+
+namespace Project1mHSE.Helpers
 {
     /// <summary>
     /// Структура используется для группировки всех значений C1...C4 в одном месте.
