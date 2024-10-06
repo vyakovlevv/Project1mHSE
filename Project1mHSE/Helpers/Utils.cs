@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace Project1mHSE.Helpers
+﻿namespace Project1mHSE.Helpers
 {
     /// <summary>
     /// Структура используется для группировки всех значений C1...C4 в одном месте.
@@ -10,7 +7,7 @@ namespace Project1mHSE.Helpers
     {
         public int C1, C2, C3, C4;
     }
-    
+
     public static class Utils
     {
         /// <summary>
@@ -24,27 +21,34 @@ namespace Project1mHSE.Helpers
         public static ((string?, int), CalculatedC) Get4Cycles(int[] arrA, int[] arrB)
         {
             CalculatedC resultCalculatedC = new CalculatedC();
-            Func<int, int, int> delegateSum = (a, b) => a + b; 
-            Func<int, int, int> delegateMul = (a, b) => a * b;
+            // checked для проверки на переполнение типов в ходе вычислений.
+            checked 
+            {
+                Func<int, int, int> delegateSum = (a, b) => a + b;
+                Func<int, int, int> delegateMul = (a, b) => a * b;
 
-            (string? err, int c2) = ProcessArray(arrA, 0, delegateSum);
-            if (err != null) { return ((err, 1), resultCalculatedC); }
-            resultCalculatedC.C2 = c2;
-            
-            (err, int c4) = ProcessArray(arrB, 0, delegateSum);
-            if (err != null) { return ((err, 2), resultCalculatedC); }
-            resultCalculatedC.C4 = c4;
-            
-            (err, int c1) = ProcessArray(arrA, 1, delegateMul);
-            if (err != null) { return ((err, 1), resultCalculatedC); }
-            resultCalculatedC.C1 = c1;
+                (string? err, int c2) = ProcessArray(arrA, 0, delegateSum);
+                if (err != null) { return ((err, 1), resultCalculatedC); }
 
-            (err, int c3) = ProcessArray(arrB, 1, delegateMul);
-            resultCalculatedC.C3 = c3;
-            
-            return err != null ? ((err, 2), resultCalculatedC) : ((null, 0), resultCalculatedC);
+                resultCalculatedC.C2 = c2;
+
+                (err, int c4) = ProcessArray(arrB, 0, delegateSum);
+                if (err != null) { return ((err, 2), resultCalculatedC); }
+
+                resultCalculatedC.C4 = c4;
+
+                (err, int c1) = ProcessArray(arrA, 1, delegateMul);
+                if (err != null) { return ((err, 1), resultCalculatedC); }
+
+                resultCalculatedC.C1 = c1;
+
+                (err, int c3) = ProcessArray(arrB, 1, delegateMul);
+                resultCalculatedC.C3 = c3;
+
+                return err != null ? ((err, 2), resultCalculatedC) : ((null, 0), resultCalculatedC);
+            }
         }
-        
+
         /// <summary>
         /// Метод вычисляет значение, последовательно применяя функцию-делегат к элементам массива.
         /// </summary>
@@ -67,10 +71,11 @@ namespace Project1mHSE.Helpers
             {
                 return ("Ошибка переполнения типов", 0);
             }
-            
+
+
             return (null, result);
         }
-    
+
         /// <summary>
         /// Метод конвертирует массив из string с числами в массив с numbers
         /// Если встречается некорректный элемент, то он игнорируется, а пользователю
@@ -86,17 +91,19 @@ namespace Project1mHSE.Helpers
             {
                 if (!int.TryParse(rawNum, out result[currentIndexOfResult]))
                 {
-                    Console.WriteLine($"Замените значение {rawNum} на корректное, дальнейшие вычисления будут проводиться " +
-                                      $"без учета этого элемента.");
+                    Console.WriteLine(
+                        $"Замените значение {rawNum} на корректное, дальнейшие вычисления будут проводиться " +
+                        $"без учета этого элемента.");
                     incorrectValues++;
                     continue;
                 }
 
                 currentIndexOfResult++;
             }
+
             return result[..^incorrectValues];
         }
-        
+
         /// <summary>
         /// Метод для получения пути к папке WorkingFiles
         /// Если WorkingFiles лежит не папке, где находится исполняемый файл, то решение и проект
@@ -109,11 +116,11 @@ namespace Project1mHSE.Helpers
             {
                 return Path.GetFullPath("WorkingFiles") + Path.DirectorySeparatorChar;
             }
+
             string curDir = Directory.GetCurrentDirectory();
             int indexOfProject = curDir.LastIndexOf("Project1mHSE", StringComparison.Ordinal);
             string path = curDir[..(indexOfProject + "Project1mHSE".Length)];
             return path + Path.DirectorySeparatorChar + "WorkingFiles" + Path.DirectorySeparatorChar;
-
         }
     }
 }
