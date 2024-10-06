@@ -1,9 +1,18 @@
-﻿using System.Text;
+﻿using System.Security;
+using System.Text;
 
-namespace Project.Helpers
+namespace Project1mHSE.Helpers
 {
+    /// <summary>
+    /// Статический класс, методы которого безопасно выполняют функции I/O с файлами
+    /// </summary>
     public static class FileHelper
     {
+        /// <summary>
+        /// Метод безопасно выполняет функцию считывания данных из файла
+        /// </summary>
+        /// <param name="path">Путь к файлу</param>
+        /// <returns>Nullable массив с строками из файла, nullable строка с ошибкой</returns>
         public static (string[]?, string?) ReadLines(string path)
         {
             try
@@ -19,12 +28,18 @@ namespace Project.Helpers
             {
                 return (null, "Проблемы с чтением данных из файла");
             }
-            catch (IOException e)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException)
             {
+                Console.WriteLine(ex.Message, path);
                 return (null, "Проблемы с открытием файла");
             }
         }
-
+        /// <summary>
+        /// Метод безопасно выполняет функцию записи данных в файл
+        /// </summary>
+        /// <param name="path">Путь к изменяемому файлу</param>
+        /// <param name="contents">Данные для заполнения</param>
+        /// <returns>Nullable строка с ошибкой</returns>
         public static string? WriteLines(string path, string[] contents)
         {
             try
@@ -35,7 +50,7 @@ namespace Project.Helpers
             {
                 return "Проблемы с записью данных в файл";
             }
-            catch (IOException)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException )
             {
                 return "Проблемы с сохранением файла";
             }
